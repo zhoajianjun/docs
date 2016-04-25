@@ -1,0 +1,62 @@
+安装编译工具：
+　　$sudo apt-get install build-essential
+　　为了成功编译Wireshark，您需要安装GTK+的开发文件和GLib库(libraries)。
+　　$sudo apt-get install libgtk2.0-dev libglib2.0-dev
+　　安装Checkinstall以便管理您系统中直接由源代码编译安装的软件。
+　　$sudo apt-get install checkinstall
+wireshark源码下载地址：http://www.wireshark.org/download.html（页 面中的source code）
+下载过程中做一些准备工作，为搭建环境做以下准备：
+1. sudo apt-get install flex bison
+yacc(Yet Another Compiler Compiler)，是Unix/Linux上一个用来生成编译器的编译器（编译器代码生成器）
+
+2. 编译安装libpcap.给ubuntu添加pcap.h
+在www.tcpdump.org页面中可下载源码：libpcap- 1.0.0.tar.gz
+cd到文件目录：
+$tar -xvf libpcap-1.0.0.tar.gz
+$cd libpcap-1.0.0.tar.gz
+$./configure
+$make
+$sudo make install
+wireshark下好之后，cd到文件目录解压：$tar -xvf wireshark-1.2.2.tar.bz2
+$cd wireshark-1.2.2
+编译安装命令如下：
+$./configure
+$make
+$sudo make install
+OK，启动
+$sudo ./wireshark
+
+
+
+
+ubuntu系统下wireshark普通用户抓包设置
+
+dumpcap需要root权限才能使用的,以普通用户打开Wireshark，Wireshark当然没有权限使用dumpcap进行截取封包。
+
+虽然可以使用
+ 
+sudo wireshark
+ 
+但是，以sudo的方式用root打开Wireshark显然是不安全的，也不是很方便，因为得到的封包数据也属于root用户。
+
+解决这个问题的办法——可以使用用户组功能使用Wireshark，具体操作：
+ 
+1、添加wireshark用户组
+ 
+sudo groupadd wireshark
+ 
+2、将dumpcap更改为wireshark用户组
+ 
+sudo chgrp wireshark /usr/bin/dumpcap
+ 
+3、让wireshark用户组有root权限使用dumpcap
+ 
+sudo chmod 4755 /usr/bin/dumpcap
+ 
+(注意:如果设为4754 Wireshark还是会提示没有权限 )
+ 
+4、将需要使用的普通用户名加入wireshark用户组，我的用户是“dengyi”（需要根据具体用户名修改！），则需要使用命令：
+ 
+sudo gpasswd -a dengyi wireshark
+ 
+这样就完成了，以普通用户dengyi登陆打开Wireshark就会有权限进行抓包了。

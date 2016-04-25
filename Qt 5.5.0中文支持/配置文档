@@ -1,0 +1,94 @@
+ 看fcitx-qt5项目的更新日志，是在1.0.3版本时解决的这个问题，写本篇博客时，我git clone到的是1.0.4版本。
+
+编译fcitx-qt需要cmake，安装cmake命令，如果已经安装，请略过。
+	
+sudo apt-get install cmake
+
+    安装 fcitx-libs-dev
+
+sudo apt-get install fcitx-libs-dev
+
+    设置qmake的环境变量：
+
+export PATH="/home/lieefu/Qt5.5.0/5.5/gcc_64/bin":$PATH
+
+    下载fcitx-libs源码：
+	
+git clone git@github.com:fcitx/fcitx-qt5.git
+
+    编译方法：
+	
+cd fcitx-qt5
+cmake .
+make
+sudo make install
+
+最后把编译得到 libfcitxplatforminputcontextplugin.so 拷贝到 Qt5.5安装目录的 Tools/QtCreator/bin/plugins/platforminputcontexts
+Qt5.6的目录是 Tools/QtCreator/lib/Qt/plugins/platforminputcontexts要注意更改权限
+将libfcitxplatforminputcontextplugin.so　拷贝到Tools/QtCreator/bin/plugins/platforminputcontexts
+
+大功告成！
+
+    CMake Error at CMakeLists.txt:8 (find_package):
+
+      Could not find a package configuration file provided by "ECM" (requested
+
+      version 1.4.0) with any of the following names:
+
+        ECMConfig.cmake
+
+        ecm-config.cmake
+
+      Add the installation prefix of "ECM" to CMAKE_PREFIX_PATH or set "ECM_DIR"
+
+      to a directory containing one of the above files.  If "ECM" provides a
+
+      separate development package or SDK, be sure it has been installed.
+
+    -- Configuring incomplete, errors occurred!
+
+遇到上述错误处里方法：
+
+这个页面 https://launchpad.net/ubuntu/+source/extra-cmake-modules/1.4.0-0ubuntu1 下载 extra-cmake-modules_1.4.0.orig.tar.xz
+
+解压后:
+	
+cd extra-cmake-modules-1.4.0
+cmake .
+make
+sudo make install
+
+
+    CMake Error at /home/lieefu/Qt5.5.0/5.5/gcc_64/lib/cmake/Qt5Gui/Qt5GuiConfigExtras.cmake:9 (message):
+
+      Failed to find "GL/gl.h" in "/usr/include/libdrm".
+
+处里方法：
+	
+sudo apt-get install libgl1-mesa-dev libglu1-mesa-dev
+
+    -- Found PkgConfig: /usr/bin/pkg-config (found version "0.26") 
+
+    -- Could NOT find XKBCommon_XKBCommon (missing:  XKBCommon_XKBCommon_LIBRARY XKBCommon_XKBCommon_INCLUDE_DIR) 
+
+    CMake Error at /usr/share/cmake-2.8/Modules/FindPackageHandleStandardArgs.cmake:108 (message):
+
+      Could NOT find XKBCommon (missing: XKBCommon_LIBRARIES XKBCommon) (Required
+
+      is at least version "0.5.0")
+
+处里方法：
+
+	
+wget http://xkbcommon.org/download/libxkbcommon-0.5.0.tar.xz
+tar xf libxkbcommon-0.5.0.tar.xz
+./configure —prefix=/usr —libdir=/usr/lib/x86_64-linux-gnu —disable-x11
+make
+sudo make install
+
+编译libxkbcommon用到yacc，如果没有这个命令，会遇到下面的错误，yacc在 bison软件包中
+ sudo apt-get install bison
+ YACC     src/xkbcomp/parser.c
+ ./build-aux/ylwrap: line 176: yacc: command not found
+ make: *** [src/xkbcomp/parser.c] Error 127
+

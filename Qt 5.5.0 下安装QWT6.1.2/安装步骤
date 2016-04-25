@@ -1,0 +1,17 @@
+1.tar jxvf qwt-6.1.2.tar.bz2
+2.cd qwt-6.1.2
+3./home/***/Qt5.5.0/5.5/gcc_64/bin/qmake 
+4.make
+5.make install
+6.sudo make install
+
+将所需要的库文件拷到相应的位置
+
+ cd /usr/local/qwt-6.1.2/lib/
+ sudo cp libqwt* /home/***/Qt5.5.0/Tools/QtCreator/lib/qtcreator/
+ cd /usr/local/qwt-6.1.2/plugins/designer
+ sudo cp libqwt_designer_plugin.so /home/***/Qt5.5.0/Tools/QtCreator/bin/plugins/designer/
+
+在自己的工程文件中加入
+    INCLUDEPATH += /usr/local/qwt-6.1.2/include
+    LIBS += -L"/usr/local/qwt-6.1.2/lib/" -lqwt
