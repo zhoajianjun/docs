@@ -1,0 +1,6 @@
+  1 
+  2 host bqvision-OptiPlex-330.tyy.com
+  3       HostName 192.168.0.250
+  4       User zhaojianjun
+  5       IdentityFile ~/.ssh/id_rsa
+  6       Port 22

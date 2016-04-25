@@ -1,0 +1,26 @@
+QSS介绍
+
+     QSS( Q t S tyle S heet)借鉴于CSS的良好思想，实现了界面和逻辑的分离。QSS中引入了盒模型（ Box Model ）概念，这是样式表技术中的核心概念之一。具体的解释网上说的挺多的，Qt本身自带的文档也有较为详细的说明。在使用盒模型进行设计之前，我们得了解下Qt中哪些组件可以用盒模型进行布局设计：
+Qt中可以应用盒模型的组件类 QCheckBox 	QCheckBox的勾选符号可以使用::indicator子组件来定制。默认情况下，勾选标记位于组件矩形的左上角。QCheckBox的spacing属性可以用于指定勾选标记和文本内容之间的间距。
+QComboBox 	对于QComboBox而言，支持盒模型的其实是包裹QComboBox的外框(Frame)，QComboBox的下拉单按钮通过::drop-down子组件来定制，默认情况下下拉单按钮位于盒模型中padding矩形的右上角。下拉按钮中的箭头号通过::down-arrow子组件进行定制，箭头号默认位于子组件的正中央。
+QGroupBox 	QGroupBox的标题用::title子组件进行定制，标题的位置依QGroupBox::textAlignment的具体值而言。对于可选的QGroupBox而言，标题中还会包含一个勾选标记，勾选标记用::indicator来定制，spacing仍然用于设置勾选标记与文本的间距。
+QSpinBox(QDateEdit,QDateTimeEdit) 	如图所示，默认情况下spinbox右部分成上下两个按钮。以向上的箭头为例，::up-button和::up-arrow分别用于定制按钮及位于按钮中的箭头号。箭头号默认位于按钮的中间，对于向下的按钮类似，只是用::down-button和::down-arrow子组件。
+QToolBox 	QToolBox是一个具备QQ折叠功能的组件，因此其中的独立的page使用::tab子组件定制。::tab组件支持一些伪状态：:only-one, :first, :middle, :previous-selected, :next-selected, :selected，从而达到定制特定page的目的。
+QMenuBar 	菜单栏组件的spacing属性可指定菜单项之间的间距，单个菜单项还可以通过::item子组件定制风格。但是值得注意的是，由于MAC下菜单栏集成到了系统菜单栏，此时样式表会失去作用。
+QProgressBar 	进度条组件使用::chunks子组件来定制进度条样式，text-align属性用于设定进度条中文本的对齐方向：left, center, right
+QScrollBar 	滚动条的组成其实非常复杂，依据垂直和水平方向的不同，由::handle, ::add-line, ::sub-line, ::add-page, ::sub-page, ::right-arrow,  ::left-arrow, ::down-arrow, ::up-arrow等子组件组成。伪状态:horizontal, :vertical用于确定滚动条的方向，width(min-width), height(min-height)则可确定滚动条的不同长和宽。
+QToolBar 	工具栏的伪状态:top, :left, :right, :bottom的使用依赖于工具栏的具体位置；而:first, :last, :middle, :only-one则用于指代工具栏中的具体位置。工具栏的分隔器用::separator子组件指代，::handle则指代移动工具栏的handle.
+QMenu 	菜单中的独立项使用::item子组件定制，除了常见的伪状态，::item还支持:selected, :default, :exclusive以及:non-exclusive等伪状态。利用这些伪状态，可以为不同状态的菜单项定制出不同的外观。对于可勾选的菜单项，使用::indicator对勾选标记进行定制，::separator则定制菜单项之间的分隔符；对于有子菜单的菜单项，其箭头号可以用::right-arrow, ::left-arrow进行定制，还有::scroller及::tearoff两个子组件，暂时没搞清楚具体作用。
+QLabel 	QLabel不支持:hover伪状态，自Qt4.3开始，给QLabel设置样式表也就隐式指定了QFrame::frameStyle属性。
+QLineEdit 	对于QLineEidt，selection-color, selection-background-color属性分别指定了选中文本的文本颜色和背景色，lineedit-password-character属性说明密码输入显示的字符。将在后面的实践中说明。
+QPushButton 	支持:default, :flat, :checked伪状态，对于具备关联菜单的按钮，可以用::menu-indicator来定制下拉菜单标记。而:open和:closed伪状态则分别用于定制菜单打开和关闭时按钮的外观。
+QRadioButton 	同上，::indicator用于定制文本前面的选项框，spacing指定文本与选项框之间的间距。
+QSlider 	对于水平的QSlider，min-width和height属性必须同时提供；对于垂直的QSlider, 必须同时提供min-height和width属性。QSlider由::groove和::handle两部分组成。::groove子组件是一条槽，供::handle在上面滑动。
+QSplitter 	窗体分割器，主要的部件是::handle。通过::handle可以动态改变分割器中的不同子窗口大小。
+QTextEdit 	使用selection-color, selection-background-color属性定制，其他的定制方式见QAbstractScrollArea。
+QToolButton 	如果QToolButton关联了一个菜单，那么和QPushButton是相同的处理方式。如果被设置成了QToolButton::MenuButtonPopup模式，那么::menu-button用于绘制菜单按钮，而::menu-arrow用于绘制按钮中的箭头号。注意：如果设置了QToolButton的背景色，那么必须还要设置边框的宽度才会起作用。这是因为QToolButton默认绘制的边框会完全遮挡住用户设置的背景色。
+QAbstractScrollArea 	所有派生自QAbstractScrollArea类的子类，包括QTextEdit, QAbstractItemView，都可以通过设置background-attachment属性来实现可滚动背景。通过给background-attachment设置fixed和scroll，背景会固定不动或者跟随滚动。
+QHeaderView 	QHeaderView是Model/View框架中的一部分，最重要的子组件是::section，::section支持:middle, :first, :last, :only-one, :next-selected, :previous-selected, :selected, :checked等伪状态。::up-arrow和::down-arrow用于定制表头的排序标记。
+QListView(QListWidget) 	show-decoration-selected属性控制选中时是选中整项还是仅仅只是项的文本，其他和QTableView相同。
+QTableView(QTableWidget) 	当view支持斑马色条时，alternate-background-color属性指定备选色实现斑马色带，selection-color和selection-background-color属性指定选定项的文本色和背景色。注意：保证同时设置了背景色和边框宽度值。
+QTreeView(QTreeWidget) 	show-decoration-selected属性控制选中时是选中整项还是仅仅只是项的文本， 子组件::branch和::item用于精细化控制。

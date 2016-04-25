@@ -1,0 +1,1217 @@
+1. 介绍
+QML是一种描述语言，主要是对界面效果等的一种描述，它可以结合javaScript来进行更复杂的效果及逻辑实现。比如做个游戏，实现一些更有趣的功能等
+
+2. 简单的例子
+import Qt 4.7
+Rectangle {
+width: 200
+height: 200
+color: "blue"
+}
+代码是绘制一个蓝色的矩形，宽 200 高 200， import包含一个qt4.7的包
+
+3.基本元素的介绍（自己翻译意思会有出入，敬请见谅）
+基本可视化项
+Item 基本的项元素 在QML中所有可视化的向都继承他
+Rectangle 基本的可视化矩形元素
+Gradient 定义一个两种颜色的渐变过程
+GradientStop 定义个颜色，被Gradient使用
+Image 在场景中使用位图
+BorderImage(特殊的项) 定义一张图片并当做边界
+AnimatedImage 为播放动画存储一系列的帧
+Text 在场景中使用文本
+TextInput 显示可编辑为文本
+IntValidator int 验证器
+DoubleValidator double 验证器
+RegExpValidator 验证字符串正则表达式
+TextEdit 显示多行可编辑文本
+
+基本的交互项
+MouseArea 鼠标句柄交互
+FocusScope 键盘焦点句柄
+Flickable 提供一种浏览整张图片的一部分的效果,具体看例子
+Flipable 提供一个平面，可以进行翻转看他的前面或后面,具体看例子
+
+状态
+State 定义一个配置对象和属性的集合
+PropertyChanges 使用一个State描述属性的改变
+StateGroup 包含一个状态集合和状态变换
+ParentChange 重新定义父集，也就是换个父节点
+AnchorChanges 在一个状态中改变anchors
+
+动画和变换
+Behavior 默认的属性变换动画
+SequentialAnimation 对定义的动画串行播放
+ParallelAnimation 对定义的动画并行播放
+PropertyAnimation 属性变换动画
+NumberAnimation 对实数类型属性进行的动画
+Vector3dAnimation 对QVector3d进行的属性
+ColorAnimation 颜色进行的变换动画
+RotationAnimation 对旋转进行的变换动画
+ParentAnimation 对父节点进行变换的动画，改变绑定的父节点
+AnchorAnimation 对anchor 进行改变的动画
+PauseAnimation 延迟处理
+SmoothedAnimation 允许属性平滑的过度
+SpringAnimation 一种加速的效果
+PropertyAction 允许在动画过程中对属性的直接改变
+ScriptAction 允许动画过程中调用脚本
+Transition 在状态变换中加入动作变化
+
+工作中的数据
+Binding 在创建的时候绑定一些数据到一些属性
+ListModel 定义链表数据
+ListElement 定义ListModel的一个数据项
+VisualItemModel 包含可视化项(visual items)到一个view中，相当是一个容器
+VisualDataModel 包含一个model和一个delegate，model包含需要的数据，delegate设计显示的项的信息，具体的去看例子
+Package 他的目的是把VisualDataModel共享给多个view，具体还要学习
+XmlListModel 特殊的一个模式使用XPath表达式，使用xml来设置元素，参考例子
+XmlRole XmlListModel的一个特殊的角色
+
+试图
+ListView 提供一个链表显示模型试图
+GridView 提供一个网格显示模型试图
+PathView 提供一个内容沿着路径来显示的模型
+Path 定义一个PathView使用的轨迹
+PathLine 定义一个线性的轨迹
+PathQuad 定义一个二次贝塞尔曲线的轨迹
+PathCubic 定义一个三次贝塞尔曲线的轨迹
+PathAttribute 允许绑定一个属性上，具体看例子
+PathPercent 修改item分配的轨迹 不是很明了其中的意思
+WebView 允许添加网页内容到一个canvas上
+
+定位器
+
+Column 整理它的子列(纵)
+Row 整理它的子行(横)
+Grid 设置它的子到一个网格上
+Flow 目的是不让他的子项重叠在一起
+
+实用
+Connections 明确连接信号和信号句柄
+Component 封装QML items 想一个组件一样
+Timer 提供时间触发器
+QtObject 基本的元素只包含objectName属性
+Qt qml全局Qt object提供使用的枚举和函数
+WorkerScript 允许在QML使用线程
+Loader 控制载入item或组件
+Repeater 使用一个模型创建多个组件
+SystemPalette 为Qt palettes提供一个通道
+FontLoader 载入字体根据名字或URL
+LayoutItem 允许声明UI元素插入到qtGraphicsView 布局中
+
+变换
+Scale 分派item 缩放行为
+Rotation 分派item 旋转行为
+Translate 分派item 移动行为
+
+4.基本元素的使用例子
+1. Item位置是0,0 宽高分别是200
+Item {
+x: 0; y: 0;
+width: 200; height: 200;
+}
+2. Rectangle位置是：0,0宽高分别是200， 颜色是红色
+Rectangle {
+x: 0; y: 0;
+width: 200; height: 200;
+color: "red"
+}
+3. Gradient GradientStop 分别在总高度的0 颜色红色 总高度的1/3 黄色 总高度的1是绿色
+Rectangle {
+width: 100; height: 100
+gradient: Gradient {
+GradientStop { position: 0.0; color: "red" }
+GradientStop { position: 0.33; color: "yellow" }
+GradientStop { position: 1.0; color: "green" }
+}
+}
+4. Image 设置一张图片
+Image {
+source: "../Images/button1.png"
+}
+5. BorderImage 他将一张图片分成9部分
+当图片进行缩放的时候
+A．1 3 7 9 位置的都不会进行缩放
+B. 2 8将根据属性horzontalTileMode 进行缩放
+C．4 6 将根据属性verticalTileMode 进行缩放
+D．5 将根据属性horzontalTileMode 和 verticalTileMode 进行缩放
+BorderImage {
+width: 180; height: 180
+// 分割1~9块的4个点是根据border设置的坐标来实现的
+// 本别是距离坐标 上边 右边 下边的距离
+border { left: 30; top: 30; right: 30; bottom: 30 }
+horizontalTileMode: BorderImage.Stretch
+verticalTileMode: BorderImage.Stretch
+source: "../Images/button1.png"
+}
+
+6. AnimatedImage 主要用于播放gif图片
+Rectangle {
+width: animation.width; height: animation.height + 8
+AnimatedImage { id: animation; source: "animation.gif" }
+Rectangle {
+property int frames: animation.frameCount
+width: 4; height: 8
+x: (animation.width - width) * animation.currentFrame / frames
+y: animation.height
+color: "red"
+}
+}
+7. Text 显示文本(具体的其他设置请看文档)
+Text {
+text: "text"
+}
+8. TextInput 下面是设置一个输入文本框，框中的字符串是Text, 并设置鼠标可以选择文本
+TextInput{
+text: "Text"
+selectByMouse: true; // 鼠标可以选择
+}
+9．IntValidator int 型验证器，和输入框结合后就是只能输入整型数据
+TextInput{
+// 最高可以输入100， 最低输入10
+IntValidator{id: intval; bottom: 10; top: 100;}
+width: 100; height: 20;
+text: "";
+// 使用校验器
+validator: intval;
+}
+10. DoubleValidator 只能输入浮点数
+TextInput{
+// 最高可以输入100， 最低输入10 decimals最多有多少位小数
+// notation 表示是使用科学计数法还是(默认),还是直接的小数 当获取里面的数据
+DoubleValidator{id: intval; decimals: 4; bottom: 10; top: 100; notation:DoubleValidator.StandardNotation}
+width: 100; height: 20;
+text: "";
+// 使用校验器
+validator: intval;
+}
+11. RegExpValidator 使用正则表达式
+TextInput{
+// 使用一个正则表达式来控制输入的字符串
+// /^[a-zA-Z]{1}[0-1]{0,2}[a-z]{1,3}$/ 表示 开始位置必须是一个大写或小写字母
+// 接下来是0~2个的数字而且是0或1，在接下来是1~3个的小写字母
+RegExpValidator{id: intval; regExp:/^[a-zA-Z]{1}[0-1]{0,2}[a-z]{1,3}$/;}
+width: 100; height: 20;
+text: "";
+// 使用校验器
+validator: intval;
+}
+12. TextEdit
+显示一段hello world的html文本和TextInput相同
+
+TextEdit {
+width: 240
+text: "<b>Hello</b> <i>World!</i>"
+font.family: "Helvetica"
+font.pointSize: 20
+color: "blue"
+focus: true
+}
+
+13. MouseArea
+
+主要是用来判断鼠标事件的区域
+Rectangle{
+x: 0; y: 0;
+width: 100; height:100;
+Rectangle{
+id: mousrect
+x: 20; y: 20;
+width: 20; height: 20;
+color: "blue"
+MouseArea{
+// 使用父的区域作为鼠标判断的区域及 x: 20; y: 20; width: 20; height: 20;
+anchors.fill: parent;
+// 但鼠标按下后 mousrect变成红色，当鼠标松开后变成蓝色
+onPressed: { mousrect.color = "red";}
+onReleased: { mousrect.color = "blue";}
+}
+}
+}
+
+
+14. FocusScope
+不是很清楚说的什么，好像是说同一个时刻只有一个item有焦点
+15. Flickable
+显示一个200x200的框，框中显示图片上200x200的部分
+Flickable {
+width: 200; height: 200
+// 设置使用图片的宽 高，而现实的是 200x200的现实框
+contentWidth: image.width; contentHeight: image.height
+Image { id: image; source: "../Images/need.png" }
+}
+
+16. Flipable
+包含两个面，一个前面，一个后面，实现一个控件前后的翻转效果，并且在后面可以添加一些控制
+
+Flipable {
+id: flipable
+width: 240
+height: 240
+property int angle: 0
+property bool flipped: false
+front: Image { source: "front.png" } // 前面
+back: Image { source: "back.png" } // 后面
+// 旋转动画 前后面交换
+transform: Rotation {
+origin.x: flipable.width/2; origin.y: flipable.height/2
+axis.x: 0; axis.y: 1; axis.z: 0 // rotate around y-axis
+angle: flipable.angle
+}
+states: State {
+name: "back"
+PropertyChanges { target: flipable; angle: 180 }
+when: flipable.flipped
+}
+transitions: Transition {
+NumberAnimation { properties: "angle"; duration: 1000 }
+}
+MouseArea {
+anchors.fill: parent
+onClicked: flipable.flipped = !flipable.flipped
+}
+}
+
+
+17. State
+
+
+// 当鼠标按下后改变 myRect 的颜色
+Rectangle {
+id: myRect
+width: 100; height: 100
+color: "black"
+MouseArea {
+id: mouseArea
+anchors.fill: parent
+onClicked: myRect.state == 'clicked' ? myRect.state = "" : myRect.state = 'clicked';
+}
+// 设置状态
+states: [
+State {
+name: "clicked"
+PropertyChanges { target: myRect; color: "red" }
+}
+]
+}
+
+
+18. PropertyChanges
+
+// 当鼠标按下后改变状态
+// 状态里面的属性改变包含了文本和颜色的改变
+Text {
+id: myText
+width: 100; height: 100
+text: "Hello"
+color: "blue"
+states: State {
+name: "myState"
+// 当这个状态被设置的时候，将改变myText的文本和颜色
+PropertyChanges {
+target: myText
+text: "Goodbye"
+color: "red"
+}
+}
+MouseArea { anchors.fill: parent; onClicked: myText.state = 'myState' }
+}
+
+
+19. StateGroup
+
+一个状态组中可以包含很多的状态和变化，而状态也可以和变换绑定.
+
+
+
+20. StateChangeScript
+
+在状态中可以对脚本中的函数进行调用
+// Sc.js
+function changeColor() // 返回蓝色
+{
+return "blue";
+}
+
+// test.qml
+import "Sc.js" as Code
+Rectangle{
+id: rect
+width: 50; height: 50
+color: "red"
+MouseArea {
+anchors.fill: parent
+onClicked: rect.state = "first" // 鼠标按下改变状态
+}
+states: State {name: "first";
+StateChangeScript{
+name: "myScript";
+script: rect.color = Code.changeColor();
+}
+}
+}
+
+
+21. ParentChang
+把指定的item换一个item父节点
+
+Item {
+width: 200; height: 100
+Rectangle {
+id: redRect
+width: 100; height: 100
+color: "red"
+}
+// 本来blueRect的父节点是Item 当鼠标按下后他被设置到 redRect上
+Rectangle {
+id: blueRect
+x: redRect.width
+width: 50; height: 50
+color: "blue"
+states: State {
+name: "reparented"
+// 改变父节点
+ParentChange { target: blueRect; parent: redRect; x: 10; y: 10 }
+}
+MouseArea { anchors.fill: parent; onClicked: blueRect.state = "reparented" }
+}
+}
+
+
+22. AnchorChanges
+
+Rectangle {
+id: window
+width: 120; height: 120
+color: "black"
+Rectangle { id: myRect; width: 50; height: 50; color: "red" }
+states: State {
+name: "reanchored"
+AnchorChanges { // 改变 myRect 的anchors属性
+target: myRect
+anchors.top: window.top
+anchors.bottom: window.bottom
+}
+PropertyChanges {
+target: myRect
+anchors.topMargin: 10
+anchors.bottomMargin: 10
+}
+}
+// 鼠标事件
+MouseArea { anchors.fill: parent; onClicked: window.state = "reanchored" }
+}
+
+
+23. Behavior
+
+Rectangle {
+id: rect
+width: 100; height: 100
+color: "red"
+// 针对宽度的动画
+Behavior on width {
+NumberAnimation { duration: 1000 }
+}
+MouseArea {
+anchors.fill: parent
+onClicked: rect.width = 50
+}
+}
+
+24. SequentialAnimation
+串行播放多个动画
+Rectangle {
+id: rect1
+width: 500; height: 500
+Rectangle{
+id: rect;
+color: "red"
+width: 100; height: 100
+// 串行播放多个动画，先横向移动，在纵向移动
+SequentialAnimation{
+running: true;
+NumberAnimation {target:rect; properties:"x"; to: 50; duration: 1000 }
+NumberAnimation {target:rect; properties:"y"; to: 50; duration: 1000 }
+}
+}
+}
+
+
+25. ParallelAnimation
+
+Rectangle {
+id: rect1
+width: 500; height: 500
+Rectangle{
+id: rect;
+color: "red"
+width: 100; height: 100
+// 并行播放动画，同时横向和纵向移动
+ParallelAnimation{
+running: true;
+NumberAnimation {target:rect; properties:"x"; to: 50; duration: 1000 }
+NumberAnimation {target:rect; properties:"y"; to: 50; duration: 1000 }
+}
+}
+}
+
+
+26. PropertyAnimation
+
+Rectangle {
+id: rect
+width: 100; height: 100
+color: "red"
+states: State {
+name: "moved"
+PropertyChanges { target: rect; x: 50 }
+}
+transitions: Transition {
+// 属性动画 这里是当属性 x或y发生变化的时候，就播放这样一个动画
+PropertyAnimation { properties: "x,y"; easing.type: Easing.InOutQuad }
+}
+MouseArea{
+anchors.fill: parent;
+onClicked: rect.state = "moved";
+}
+}
+
+
+27. NumberAnimation
+
+Rectangle {
+width: 100; height: 100
+color: "red"
+// 对当前item的x进行移动，目标移动到x = 50
+NumberAnimation on x { to: 50; duration: 1000 }
+}
+
+
+28. Vector3dAnimation
+
+
+
+29. ColorAnimation
+
+颜色的过度
+Rectangle {
+width: 100; height: 100
+color: "red"
+ColorAnimation on color { to: "yellow"; duration: 1000 }
+}
+
+
+30. RotationAnimation
+
+默认是绕z轴进行的旋转
+Item {
+width: 300; height: 300
+Rectangle {
+id: rect
+width: 150; height: 100; anchors.centerIn: parent
+color: "red"
+smooth: true
+states: State {
+name: "rotated"; PropertyChanges { target: rect; rotation: 180 }
+}
+transitions: Transition {
+RotationAnimation { duration: 1000; direction: RotationAnimation.Counterclockwise }
+}
+}
+MouseArea { anchors.fill: parent; onClicked: rect.state = "rotated" }
+}
+
+
+31. ParentAnimation
+
+一个切换父节点的动画,平滑的过度
+Item {
+width: 200; height: 100
+Rectangle {
+id: redRect
+width: 100; height: 100
+color: "red"
+}
+Rectangle {
+id: blueRect
+x: redRect.width
+width: 50; height: 50
+color: "blue"
+states: State {
+name: "reparented"
+ParentChange { target: blueRect; parent: redRect; x: 10; y: 10 }
+}
+transitions: Transition {
+ParentAnimation {
+NumberAnimation { properties: "x,y"; duration: 1000 }
+}
+}
+MouseArea { anchors.fill: parent; onClicked: blueRect.state = "reparented" }
+}
+}
+
+32. AnchorAnimation
+
+Item {
+id: container
+width: 200; height: 200
+Rectangle {
+id: myRect
+width: 100; height: 100
+color: "red"
+}
+states: State {
+name: "reanchored"
+AnchorChanges { target: myRect; anchors.right: container.right }
+}
+transitions: Transition {
+// smoothly reanchor myRect and move into new position
+AnchorAnimation { duration: 1000 }
+}
+// 当控件加载完成后
+Component.onCompleted: container.state = "reanchored"
+}
+
+33. PauseAnimation
+
+延迟效果
+Item {
+id: container
+width: 200; height: 200
+Rectangle {
+id: myRect
+width: 100; height: 100
+color: "red"
+SequentialAnimation {
+running: true;
+NumberAnimation {target: myRect;to: 50; duration: 1000; properties: "x"; }
+PauseAnimation { duration: 5000 } // 延迟100毫秒
+NumberAnimation {target: myRect; to: 50; duration: 1000; properties: "y"; }
+}
+}
+}
+
+
+34. SmoothedAnimation
+
+平滑过度
+Rectangle {
+width: 800; height: 600
+color: "blue"
+Rectangle {
+width: 60; height: 60
+x: rect1.x - 5; y: rect1.y - 5
+color: "green"
+Behavior on x { SmoothedAnimation { velocity: 200 } }
+Behavior on y { SmoothedAnimation { velocity: 200 } }
+}
+Rectangle {
+id: rect1
+width: 50; height: 50
+color: "red"
+}
+focus: true
+Keys.onRightPressed: rect1.x = rect1.x + 100
+Keys.onLeftPressed: rect1.x = rect1.x - 100
+Keys.onUpPressed: rect1.y = rect1.y - 100
+Keys.onDownPressed: rect1.y = rect1.y + 100
+}
+
+
+35. SpringAnimation
+
+平滑的过度过程，在动画结束的时候有种弹性的效果
+
+Item {
+width: 300; height: 300
+Rectangle {
+id: rect
+width: 50; height: 50
+color: "red"
+Behavior on x { SpringAnimation { spring: 2; damping: 0.2 } }
+Behavior on y { SpringAnimation { spring: 2; damping: 0.2 } }
+}
+MouseArea {
+anchors.fill: parent
+onClicked: {
+rect.x = mouse.x - rect.width/2
+rect.y = mouse.y - rect.height/2
+}
+}
+}
+
+
+36. PropertyAction
+
+主要是在动画过程中直接的改变一个属性
+transitions: Transition {
+...
+PropertyAction { target: theImage; property: "smooth"; value: true }
+...
+}
+
+38. ScriptAction
+
+在动画过程中嵌入脚本的调用
+SequentialAnimation {
+NumberAnimation { ... }
+ScriptAction { script: doSomething(); }
+NumberAnimation { ... }
+}
+
+
+39. Transition
+
+Rectangle {
+id: rect
+width: 100; height: 100
+color: "red"
+MouseArea {
+id: mouseArea
+anchors.fill: parent
+}
+states: State {
+name: "moved"; when: mouseArea.pressed
+PropertyChanges { target: rect; x: 50; y: 50 }
+}
+transitions: Transition {
+NumberAnimation { properties: "x,y"; easing.type: Easing.InOutQuad }
+}
+}
+
+
+40. Binding
+
+Item {
+width: 300; height: 300
+Text {id: app; text: "xxxfa"}
+TextEdit { id: myTextField; text: "Please type here..." }
+// 把myTextField和app的enteredText属性进行绑定
+Binding { target: app; property: "enteredText"; value: myTextField.text }
+}
+
+
+41. ListModel
+
+直接看效果
+Rectangle {
+width: 200; height: 200
+ListModel {
+id: fruitModel
+ListElement {
+name: "Apple"
+cost: 2.45
+}
+ListElement {
+name: "Orange"
+cost: 3.25
+}
+ListElement {
+name: "Banana"
+cost: 1.95
+}
+}
+Component {
+id: fruitDelegate
+Row {
+spacing: 10
+Text { text: name }
+Text { text: '$' + cost }
+}
+}
+ListView {
+anchors.fill: parent
+model: fruitModel
+delegate: fruitDelegate
+}
+}
+
+42. ListElement
+
+请参照ListModel
+
+43. VisualItemModel
+
+把可视化图元添加到链表试图
+Rectangle {
+width: 100; height: 100;
+VisualItemModel {
+id: itemModel
+Rectangle { height: 30; width: 80; color: "red" }
+Rectangle { height: 30; width: 80; color: "green" }
+Rectangle { height: 30; width: 80; color: "blue" }
+}
+ListView {
+anchors.fill: parent
+model: itemModel
+}
+}
+
+
+44. VisualDataModel
+
+看下面效果
+Rectangle {
+width: 200; height: 100
+VisualDataModel {
+id: visualModel
+model: ListModel {
+ListElement { name: "Apple" }
+ListElement { name: "Orange" }
+}
+delegate: Rectangle {
+height: 25
+width: 100
+Text { text: "Name: " + name}
+}
+}
+ListView {
+anchors.fill: parent
+model: visualModel
+}
+}
+
+
+45. Package
+
+具体请参考
+declarative/modelviews/package
+
+
+46. XmlListModel XmlRole
+
+
+从网络获取xml，暂时没有测试成功
+
+47. ListView
+
+参考 ListModel VisualDataModel
+
+
+48. GridView
+
+看效果
+Rectangle {
+width: 200; height: 400;
+ListModel {
+id: fruitModel
+ListElement {
+name: "Apple"
+cost: 2.45
+}
+ListElement {
+name: "Orange"
+cost: 3.25
+}
+ListElement {
+name: "Banana"
+cost: 1.95
+}
+}
+GridView {
+anchors.fill: parent
+model: fruitModel
+delegate: Column{
+Text {text:"name" + name}
+Text {text:"cost"+ cost}
+}
+}
+}
+
+
+
+49．PathView Path
+
+看例子
+
+Rectangle {
+width: 200; height: 400;
+ListModel {
+id: fruitModel
+ListElement {
+name: "Apple"
+cost: 2.45
+}
+ListElement {
+name: "Orange"
+cost: 3.25
+}
+ListElement {
+name: "Banana"
+cost: 1.95
+}
+}
+PathView {
+anchors.fill: parent
+model: fruitModel
+delegate: Column{
+Text {text:"name" + name}
+Text {text:"cost"+ cost}
+}
+path:Path{
+startX: 120; startY: 100
+PathQuad { x: 120; y: 25; controlX: 260; controlY: 75 }
+PathQuad { x: 120; y: 100; controlX: -20; controlY: 75 }
+}
+}
+}
+
+
+
+50．PathLine
+
+具体的看运行的例子
+
+Rectangle {
+width: 200; height: 400;
+ListModel {
+id: fruitModel
+ListElement {
+name: "Apple"
+cost: 2.45
+}
+ListElement {
+name: "Orange"
+cost: 3.25
+}
+ListElement {
+name: "Banana"
+cost: 1.95
+}
+}
+PathView {
+anchors.fill: parent
+model: fruitModel
+delegate: Column{
+Text {text:"name" + name}
+Text {text:"cost"+ cost}
+}
+path:Path{
+startX: 150; startY: 120
+PathLine { x: 200; y: 80; }
+PathLine { x: 100; y: 80; }
+PathLine { x: 150; y: 120; }
+}
+}
+}
+
+51．PathQuad
+
+参考 PathView Path
+
+52．PathCubic
+
+
+还要看
+
+53．PathAttribute
+
+可以直接针对一些属性进行改变
+Rectangle {
+width: 200; height: 400;
+ListModel {
+id: fruitModel
+ListElement {
+name: "Apple"
+cost: 2.45
+}
+ListElement {
+name: "Orange"
+cost: 3.25
+}
+ListElement {
+name: "Banana"
+cost: 1.95
+}
+}
+PathView {
+anchors.fill: parent
+model: fruitModel
+delegate:
+Item {
+id: delitem;
+width: 80; height: 80;
+Column{
+// 这里使用图片试试
+Rectangle {
+width: 40; height: 40;
+scale: delitem.scale;
+color: "red"
+}
+Text {text:"name" + name}
+Text {text:"cost"+ cost}
+}
+}
+//
+path: Path {
+startX: 120; startY: 100
+PathAttribute { name: "Scale"; value: 1.0 }
+PathQuad { x: 120; y: 25; controlX: 260; controlY: 75 }
+PathAttribute { name: "Scale"; value: 0.3 }
+PathQuad { x: 120; y: 100; controlX: -20; controlY: 75 }
+}
+}
+}
+
+54．PathPercent
+
+具体请看QML文档
+
+
+55．WebView
+
+import QtWebKit 1.0
+WebView {
+url: "http://www.nokia.com"
+preferredWidth: 490
+preferredHeight: 400
+scale: 0.5
+smooth: false
+}
+
+
+56 Column
+横向排列
+Rectangle{
+width: 100; height: 100;
+// 纵向排列
+Column {
+spacing: 2
+Rectangle { color: "red"; width: 50; height: 50 }
+Rectangle { color: "green"; width: 20; height: 50 }
+Rectangle { color: "blue"; width: 50; height: 20 }
+}
+}
+
+
+57 Row
+
+Rectangle{
+width: 100; height: 100;
+// 横向排列
+Row {
+spacing: 2
+Rectangle { color: "red"; width: 50; height: 50 }
+Rectangle { color: "green"; width: 20; height: 50 }
+Rectangle { color: "blue"; width: 50; height: 20 }
+}
+}
+
+
+58 Grid
+
+Rectangle{
+width: 100; height: 100;
+// 网格排列
+Grid {
+columns: 3
+spacing: 2
+Rectangle { color: "red"; width: 50; height: 50 }
+Rectangle { color: "green"; width: 20; height: 50 }
+Rectangle { color: "blue"; width: 50; height: 20 }
+Rectangle { color: "cyan"; width: 50; height: 50 }
+Rectangle { color: "magenta"; width: 10; height: 10 }
+}
+}
+
+59 Flow
+
+Rectangle{
+width: 100; height: 100;
+// 网格排列
+Flow {
+spacing: 2
+width: 100; height: 100;
+Rectangle { color: "red"; width: 50; height: 50 }
+Rectangle { color: "green"; width: 20; height: 50 }
+Rectangle { color: "blue"; width: 50; height: 20 }
+Rectangle { color: "cyan"; width: 50; height: 50 }
+Rectangle { color: "magenta"; width: 10; height: 10 }
+}
+}
+
+60 Connections
+
+下面是3中情况下会使用的，具体的不好翻译
+Multiple connections to the same signal are required
+有多个连接要连接到相同的信号时
+Creating connections outside the scope of the signal sender
+创建的连接在范围之外
+Connecting to targets not defined in QML
+创建的连接没有在QML中定义的
+
+Rectangle{
+width: 100; height: 100;
+MouseArea {
+id: area
+anchors.fill: parent;
+}
+Connections {
+target: area
+onClicked: { console.log(" ok");}
+}
+}
+
+
+61 Component
+
+组件是可以重用的QML元素，具体还是看QML的文档翻译不是很好
+
+Item {
+width: 100; height: 100
+// 定义一个组件他包含一个10x10的红色矩形
+Component {
+id: redSquare
+Rectangle {
+color: "red"
+width: 10
+height: 10
+}
+}
+// 动态的载入一个组件
+Loader { sourceComponent: redSquare }
+Loader { sourceComponent: redSquare; x: 20 }
+}
+
+
+62 Timer
+
+Item {
+width: 200; height: 40;
+// 和QTimer 差不多
+Timer {
+interval: 500; running: true; repeat: true
+onTriggered: time.text = Date().toString() // 使用javascript获取系统时间
+}
+Text { id: time }
+}
+
+
+63 QtObject
+
+他是不可见的只有objectName一个属性
+通过这个属性我们可以在c++中找到我们想要的对象
+
+// MyRect.qml
+import Qt 4.7
+Item {
+width: 200; height: 200
+Rectangle {
+anchors.fill: parent
+color: "red"
+objectName: "myRect"
+}
+}
+
+// main.cpp
+QDeclarativeView view;
+view.setSource(QUrl::fromLocalFile("MyRect.qml"));
+view.show();
+QDeclarativeItem *item = view.rootObject()->findChild<QDeclarativeItem*>("myRect");
+if (item)
+item->setProperty("color", QColor(Qt::yellow));
+
+
+
+64 Qt
+
+提供全局有用的函数和枚举，具体的看QML文档
+
+
+65. WorkerScript
+
+使用它可以把操作放到一个新的线程中，使得它在后台运行而不影响主GUI
+具体可以看QML中它的文档
+
+66. Loader
+
+可以参考Component
+还有QML中的文档
+
+
+67 Repeater
+
+他可以创建很多相似的组件，QML中还有几个例子
+
+Row {
+Repeater {
+model: 3
+Rectangle {
+width: 100; height: 40
+border.width: 1
+color: "yellow"
+}
+}
+}
+
+68 SystemPalette
+
+具体看效果和文档
+Rectangle {
+SystemPalette { id: myPalette; colorGroup: SystemPalette.Active }
+width: 640; height: 480
+color: myPalette.window
+Text {
+anchors.fill: parent
+text: "Hello!"; color: myPalette.windowText
+}
+}
+
+
+69. FontLoader
+
+
+载入一种字体，可以是网络上的，也可以是本地的
+Column {
+FontLoader { id: fixedFont; name: "Courier" }
+FontLoader { id: webFont; source: "http://www.mysite.com/myfont.ttf" }
+Text { text: "Fixed-size font"; font.family: fixedFont.name }
+Text { text: "Fancy font"; font.family: webFont.name }
+}
+
+70 LayoutItem
+
+不清楚
+
+71 Scale
+
+对缩放的控制
+Rectangle {
+width: 100; height: 100
+color: "blue"
+Rectangle{
+x: 50; y: 50;
+width: 20; height: 20;
+color: "red"
+// 这里是在当前矩形的中间位置沿x轴进行3倍缩放
+transform: Scale { origin.x: 10; origin.y: 10; xScale: 3}
+}
+}
+
+
+72 Rotation
+Rectangle {
+width: 100; height: 100
+color: "blue"
+// 绕位置25,25 旋转45度
+transform: Rotation { origin.x: 25; origin.y: 25; angle: 45}
+}
+
+
+73 Translate
+
+Row {
+Rectangle {
+width: 100; height: 100
+color: "blue"
+// 沿y轴正方向移动20个像素
+transform: Translate { y: 20 }
+}
+Rectangle {
+width: 100; height: 100
+color: "red"
+// 沿y轴负方向移动20个像素
+transform: Translate { y: -20 }
+}
+}

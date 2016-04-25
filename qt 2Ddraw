@@ -1,0 +1,852 @@
+1.新建Qt4 Gui Application工程，我这里使用的工程名为painter01，选用QDialog作为Base class
+2.在dialog.h文件中声明重绘事件函数void paintEvent(QPaintEvent *);
+3.在dialog.cpp中添加绘图类QPainter的头文件包含#include <QPainter>
+4.在下面进行该函数的重定义。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.drawLine(0,0,100,100);
+}
+其中创建了QPainter类对象，它是用来进行绘制图形的，我们这里画了一条线Line，其中的参数为线的起点（0，0），和终点（100，100）。这里的数值指的是像素，详细的坐标设置我们以后再讲，这里知道（0，0）点指的是窗口的左上角即可。运行效果如下：
+
+
+5.在qt的帮助里可以查看所有的绘制函数，而且下面还给出了相关的例子。
+
+
+
+
+6.我们下面将几个知识点说明一下，帮助大家更快入门。
+将函数改为如下：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPen pen; //画笔
+    pen.setColor(QColor(255,0,0));
+    QBrush brush(QColor(0,255,0,125)); //画刷
+    painter.setPen(pen); //添加画笔
+    painter.setBrush(brush); //添加画刷
+    painter.drawRect(100,100,200,200); //绘制矩形
+}
+这里的pen用来绘制边框，brush用来进行封闭区域的填充，QColor类用来提供颜色，我们这里使用了rgb方法来生成颜色，即（red，green，blue），它们取值分别是0-255，例如（255，0，0）表示红色，而全0表示黑色，全255表示白色。后面的（0，255，0，125），其中的125是透明度（alpha）设置，其值也是从0到255，0表示全透明。最后将画笔和画刷添加到painter绘制设备中，画出图形。这里的Rect是长方形，其中的参数为（100，100）表示起始坐标，200，200表示长和宽。效果如下：
+
+
+7.其实画笔和画刷也有很多设置，大家可以查看帮助。
+QPainter painter(this);
+    QPen pen(Qt::DotLine);
+    QBrush brush(Qt::blue);
+    brush.setStyle(Qt::HorPattern);
+    painter.setPen(pen);
+    painter.setBrush(brush);
+    painter.drawRect(100,100,200,200);
+这里我们设置了画笔的风格为点线，画刷的风格为并行横线，效果如下：
+
+
+在帮助里可以看到所有的风格。
+
+
+
+我们这里用了Qt::blue，Qt自定义的几个颜色如下：
+
+
+8.画弧线，这是帮助里的一个例子。
+QRectF rectangle(10.0, 20.0, 80.0, 60.0);
+     int startAngle = 30 * 16;
+     int spanAngle = 120 * 16;
+     QPainter painter(this);
+     painter.drawArc(rectangle, startAngle, spanAngle);
+这里要说明的是，画弧线时，角度被分成了十六分之一，就是说，要想为30度，就得是30*16。它有起始角度和跨度，还有位置矩形，要想画出自己想要的弧线，就要有一定的几何知识了
+
+
+
+
+在qt中提供了三种渐变方式，分别是线性渐变，圆形渐变和圆锥渐变。如果能熟练应用它们，就能设计出炫目的填充效果。
+
+线性渐变：
+1.更改函数如下：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QLinearGradient linearGradient(100,150,300,150);
+    //从点（100，150）开始到点（300，150）结束，确定一条直线
+    linearGradient.setColorAt(0,Qt::red);
+    linearGradient.setColorAt(0.2,Qt::black);
+    linearGradient.setColorAt(0.4,Qt::yellow);
+    linearGradient.setColorAt(0.6,Qt::white);
+    linearGradient.setColorAt(0.8,Qt::green);
+    linearGradient.setColorAt(1,Qt::blue);
+    //将直线开始点设为0，终点设为1，然后分段设置颜色
+    painter.setBrush(linearGradient);
+    painter.drawRect(100,100,200,100);
+    //绘制矩形，线性渐变线正好在矩形的水平中心线上
+}
+效果如下：
+
+圆形渐变：
+1.更改函数内容如下：
+   QRadialGradient radialGradient(200,100,100,200,100);
+   //其中参数分别为圆形渐变的圆心（200，100），半径100，和焦点（200，100）
+    //这里让焦点和圆心重合，从而形成从圆心向外渐变的效果
+    radialGradient.setColorAt(0,Qt::black);
+    radialGradient.setColorAt(1,Qt::yellow);
+    //渐变从焦点向整个圆进行，焦点为起始点0，圆的边界为1
+    QPainter painter(this);
+    painter.setBrush(radialGradient);
+    painter.drawEllipse(100,0,200,200);
+   //绘制圆，让它正好和上面的圆形渐变的圆重合
+效果如下：
+
+
+
+2.要想改变填充的效果，只需要改变焦点的位置和渐变的颜色位置即可。
+改变焦点位置：QRadialGradient radialGradient(200,100,100,100,100);
+效果如下：
+
+
+
+锥形渐变：
+1.更改函数内容如下：
+//圆锥渐变
+    QConicalGradient conicalGradient(50,50,0);
+    //圆心为（50，50），开始角度为0
+    conicalGradient.setColorAt(0,Qt::green);
+    conicalGradient.setColorAt(1,Qt::white);
+   //从圆心的0度角开始逆时针填充
+    QPainter painter(this);
+    painter.setBrush(conicalGradient);
+    painter.drawEllipse(0,0,100,100);
+效果如下：
+
+
+2.可以更改开始角度，来改变填充效果
+QConicalGradient conicalGradient(50,50,30);
+
+
+1.绘制最简单的文字。
+我们更改重绘函数如下：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.drawText(100,100,"yafeilinux");
+}
+我们在（100，100）的位置显示了一行文字，效果如下。
+
+2.为了更好的控制字体的位置。我们使用另一个构造函数。在帮助里查看drawText，如下。
+
+
+这里我们看到了构造函数的原型和例子。其中的flags参数可以控制字体在矩形中的位置。我们更改函数内容如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QRectF ff(100,100,300,200);
+    //设置一个矩形
+    painter.drawRect(ff);
+    //为了更直观地看到字体的位置，我们绘制出这个矩形
+    painter.setPen(QColor(Qt::red));
+    //设置画笔颜色为红色
+    painter.drawText(ff,Qt::AlignHCenter,"yafeilinux");
+    //我们这里先让字体水平居中
+}
+效果如下。
+
+
+可以看到字符串是在最上面水平居中的。如果想让其在矩形正中间，我们可以使用Qt::AlignCenter。
+这里我们也可以使用两个枚举变量进行按位与操作，例如可以使用Qt::AlignBottom|Qt::AlignHCenter实现让文字显示在矩形下面的正中间。效果如下。
+
+
+对于较长的字符串，我们也可以利用“\n”进行换行，例如"yafei\nlinux"。效果如下。
+
+
+3.如果要使文字更美观，我们就需要使用QFont类来改变字体。先在帮助中查看一下这个类。
+
+可以看到它有好几个枚举变量来设置字体。下面的例子我们对主要的几个选项进行演示。
+更改函数如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QFont font("Arial",20,QFont::Bold,true);
+    //设置字体的类型，大小，加粗，斜体
+    font.setUnderline(true);
+    //设置下划线
+    font.setOverline(true);
+    //设置上划线
+    font.setCapitalization(QFont::SmallCaps);
+    //设置大小写
+    font.setLetterSpacing(QFont::AbsoluteSpacing,5);
+    //设置间距
+    QPainter painter(this);
+    painter.setFont(font);
+    //添加字体
+    QRectF ff(100,100,300,200);
+    painter.drawRect(ff);
+    painter.setPen(QColor(Qt::red));
+    painter.drawText(ff,Qt::AlignCenter,"yafeilinux");
+}
+
+
+
+接着上一次的教程，这次我们学习在窗体上绘制路径。QPainterPath这个类很有用，这里我们只是说明它最常使用的功能，更深入的以后再讲。
+1.我们更改paintEvent函数如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainterPath path;
+    path.addEllipse(100,100,50,50);
+    path.lineTo(200,200);
+    QPainter painter(this);
+    painter.setPen(Qt::green);
+    painter.setBrush(Qt::yellow);
+    painter.drawPath(path);
+}
+这里我们新建了一个painterPath对象，并加入了一个圆和一条线。然后绘制这个路径。
+效果如下。
+
+
+2.上面绘制圆和直线都有对应的函数啊，为什么还要加入一个painterPath呢？
+我们再添加几行代码，你就会发现它的用途了。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainterPath path;
+    path.addEllipse(100,100,50,50);
+    path.lineTo(200,200);
+    QPainter painter(this);
+    painter.setPen(Qt::green);
+    painter.setBrush(Qt::yellow);
+    painter.drawPath(path);
+    QPainterPath path2;
+    path2.addPath(path);
+    path2.translate(100,0);
+    painter.drawPath(path2);
+}
+效果如下。
+
+这里我们又新建了一个painterPath对象path2，并将以前的path添加到它上面，然后我们更改了原点坐标为（100，0），这时你发现我们复制了以前的图形。这也就是painterPath类最主要的用途，它能保存你已经绘制好的图形。
+
+3.这里我们应该注意的是绘制完一个图形后，当前的位置在哪里。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainterPath path;
+    path.lineTo(100,100);
+    path.lineTo(200,100);
+    QPainter painter(this);
+    painter.drawPath(path);
+}
+效果如下。
+
+可以看到默认是从原点（0，0）开始绘图的，当画完第一条直线后，当前点应该在（100，100）处，然后画第二条直线。
+再如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainterPath path;
+    path.addRect(50,50,40,40);
+    path.lineTo(200,200);
+    QPainter painter(this);
+
+    painter.drawPath(path);
+}
+效果如下。可见画完矩形后，当前点在矩形的左上角顶点，然后从这里开始画直线。
+
+我们可以自己改变当前点的位置。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainterPath path;
+    path.addRect(50,50,40,40);
+    path.moveTo(100,100);
+    path.lineTo(200,200);
+    QPainter painter(this);
+    painter.drawPath(path);
+}
+效果如下图。可见moveTo函数可以改变当前点的位置。
+
+
+
+
+
+
+
+
+现在我们来实现在窗口上显示图片，并学习怎样将图片进行平移，缩放，旋转和扭曲。这里我们是利用QPixmap类来实现图片显示的。
+一、利用QPixmap显示图片。
+1.将以前的工程文件夹进行复制备份，我们这里将工程文件夹改名为painter05。（以前已经说过，经常备份工程目录，是个很好的习惯）
+2.在工程文件夹的debug文件夹中新建文件夹，我这里命名为images，用来存放要用的图片。我这里放了一张linux.jpg的图片。如下图所示。
+
+3.在Qt Creator中打开工程。（即打开工程文件夹中的.pro文件），如图。
+
+
+4.将dialog.cpp文件中的paintEvent（）函数更改如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix;
+    pix.load("images/linux.jpg");
+    painter.drawPixmap(0,0,100,100,pix);
+}
+这里新建QPixmap类对象，并为其添加图片，然后在以（0，0）点开始的宽和高都为100的矩形中显示该图片。你可以改变矩形的大小，看一下效果啊。最终程序运行效果如下。
+
+
+（说明：下面的操作都会和坐标有关，这里请先进行操作，我们在下一节将会讲解坐标系统。）
+二、利用更改坐标原点实现平移。
+Qpainter类中的translate()函数实现坐标原点的改变，改变原点后，此点将会成为新的原点（0，0）；
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix;
+    pix.load("images/linux.jpg");
+    painter.drawPixmap(0,0,100,100,pix);
+    painter.translate(100,100); //将（100，100）设为坐标原点
+    painter.drawPixmap(0,0,100,100,pix);
+}
+这里将（100，100）设置为了新的坐标原点，所以下面在（0，0）点贴图，就相当于在以前的（100，100）点贴图。效果如下。
+
+
+三、实现图片的缩放。
+我们可以使用QPixmap类中的scaled()函数来实现图片的放大和缩小。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix;
+    pix.load("images/linux.jpg");
+    painter.drawPixmap(0,0,100,100,pix);
+    qreal width = pix.width(); //获得以前图片的宽和高
+    qreal height = pix.height();
+    pix = pix.scaled(width*2,height*2,Qt::KeepAspectRatio);
+    //将图片的宽和高都扩大两倍，并且在给定的矩形内保持宽高的比值
+    painter.drawPixmap(100,100,pix);
+}
+其中参数Qt::KeepAspectRatio，是图片缩放的方式。我们可以查看其帮助。将鼠标指针放到该代码上，当出现F1提示时，按下F1键，这时就可以查看其帮助了。当然我们也可以直接在帮助里查找该代码。
+
+
+这是个枚举变量，这里有三个值，只看其图片就可大致明白，Qt::IgnoreAspectRatio是不保持图片的长宽比，Qt::KeepAspectRatio是在给定的矩形中保持长宽比，最后一个也是保持长宽比，但可能超出给定的矩形。这里给定的矩形是由我们显示图片时给定的参数决定的，例如painter.drawPixmap(0,0,100,100,pix);就是在以（0，0）点为起始点的宽和高都是100的矩形中。
+程序运行效果如下。
+
+
+四、实现图片的旋转。
+旋转使用的是QPainter类的rotate()函数，它默认是以原点为中心进行旋转的。我们要改变旋转的中心，可以使用前面讲到的translate()函数完成。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix;
+    pix.load("images/linux.jpg");
+    painter.translate(50,50); //让图片的中心作为旋转的中心
+    painter.rotate(90); //顺时针旋转90度
+    painter.translate(-50,-50); //使原点复原
+    painter.drawPixmap(0,0,100,100,pix);
+}
+这里必须先改变旋转中心，然后再旋转，然后再将原点复原，才能达到想要的效果。
+运行程序，效果如下。
+
+
+五、实现图片的扭曲。
+
+实现图片的扭曲，是使用的QPainter类的shear(qreal sh，qreal sv)函数完成的。它有两个参数，前面的参数实现横行变形，后面的参数实现纵向变形。当它们的值为0时，表示不扭曲。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix;
+    pix.load("images/linux.jpg");
+    painter.drawPixmap(0,0,100,100,pix);
+    painter.shear(0.5,0); //横向扭曲
+    painter.drawPixmap(100,0,100,100,pix);
+}
+效果如下：
+
+其他扭曲效果：
+painter.shear(0,0.5); //纵向扭曲                                               painter.shear(0.5,0.5); //横纵扭曲
+                             
+图片形状的变化，其实就是利用坐标系的变化来实现的。我们在下一节中将会讲解坐标系统。这一节中的几个函数，我们可以在其帮助文件中查看其详细解释。
+
+
+
+
+Qt的坐标系统，然后讲解那几个函数，它们分别是：
+translate()函数，进行平移变换；scale()函数，进行比例变换；rotate()函数，进行旋转变换；shear()函数，进行扭曲变换。
+最后介绍两个有用的函数save()和restore()，利用它们来保存和弹出坐标系的状态，从而实现快速利用几个变换来绘图。
+一、坐标系简介。
+Qt中每一个窗口都有一个坐标系，默认的，窗口左上角为坐标原点，然后水平向右依次增大，水平向左依次减小，垂直向下依次增大，垂直向上依次减小。原点即为（0，0）点，然后以像素为单位增减。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setBrush(Qt::red);
+    painter.drawRect(0,0,100,100);
+    painter.setBrush(Qt::yellow);
+    painter.drawRect(-50,-50,100,100);
+}
+我们先在原点（0，0）绘制了一个长宽都是100像素的红色矩形，又在（-50，-50）点绘制了一个同样大小的黄色矩形。可以看到，我们只能看到黄色矩形的一部分。效果如下图。
+
+二、坐标系变换。
+坐标系变换是利用变换矩阵来进行的，我们可以利用QTransform类来设置变换矩阵，因为一般我们不需要进行更改，所以这里不在涉及。下面我们只是对坐标系的平移，缩放，旋转，扭曲等应用进行介绍。
+1.利用translate()函数进行平移变换。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setBrush(Qt::yellow);
+    painter.drawRect(0,0,50,50);
+   painter.translate(100,100); //将点（100，100）设为原点
+    painter.setBrush(Qt::red);
+    painter.drawRect(0,0,50,50);
+   painter.translate(-100,-100);
+    painter.drawLine(0,0,20,20);
+}
+效果如下。
+
+这里将（100，100）点作为了原点，所以此时（100，100）就是（0，0）点，以前的（0，0）点就是
+（-100，-100）点。要想使原来的（0，0）点重新成为原点，就是将（-100，-100）设为原点。
+2.利用scale()函数进行比例变换，实现缩放效果。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setBrush(Qt::yellow);
+    painter.drawRect(0,0,100,100);
+    painter.scale(2,2); //放大两倍
+    painter.setBrush(Qt::red);
+    painter.drawRect(50,50,50,50);
+}
+效果如下。
+
+可以看到，painter.scale(2,2)，是将横纵坐标都扩大了两倍，现在的（50，50）点就相当于以前的
+（100，100）点。
+3.利用shear()函数就行扭曲变换。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setBrush(Qt::yellow);
+    painter.drawRect(0,0,50,50);
+    painter.shear(0,1); //纵向扭曲变形
+    painter.setBrush(Qt::red);
+    painter.drawRect(50,0,50,50);
+}
+效果如下。
+
+这里，painter.shear(0,1)，是对纵向进行扭曲，0表示不扭曲，当将第一个0更改时就会对横行进行扭曲，关于扭曲变换到底是什么效果，你观察一下是很容易发现的。
+4.利用rotate()函数进行比例变换，实现缩放效果。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.drawLine(0,0,100,0);
+    painter.rotate(30); //以原点为中心，顺时针旋转30度
+    painter.drawLine(0,0,100,0);
+   painter.translate(100,100);
+    painter.rotate(30);
+    painter.drawLine(0,0,100,0);
+}
+效果如下。
+
+因为默认的rotate()函数是以原点为中心进行顺时针旋转的，所以我们要想使其以其他点为中心进行旋转，就要先进行原点的变换。这里的painter.translate(100,100)将（100，100）设置为新的原点，想让直线以其为中心进行旋转，可是你已经发现效果并非如此。是什么原因呢？我们添加一条语句，如下：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.drawLine(0,0,100,0);
+    painter.rotate(30); //以原点为中心，顺时针旋转30度
+    painter.drawLine(0,0,100,0);
+   painter.rotate(-30);
+    painter.translate(100,100);
+    painter.rotate(30);
+    painter.drawLine(0,0,100,0);
+}
+
+效果如下。
+
+这时就是我们想要的效果了。我们加的一句代码为painter.rotate(-30)，这是因为前面已经将坐标旋转了30度，我们需要将其再旋转回去，才能是以前正常的坐标系统。不光这个函数如此，这里介绍的这几个函数均如此，所以很容易出错。下面我们将利用两个函数来很好的解决这个问题。
+三、坐标系状态的保护。
+我们可以先利用save()函数来保存坐标系现在的状态，然后进行变换操作，操作完之后，再用restore()函数将以前的坐标系状态恢复，其实就是一个入栈和出栈的操作。
+例如：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.save(); //保存坐标系状态
+    painter.translate(100,100);
+    painter.drawLine(0,0,50,50);
+    painter.restore(); //恢复以前的坐标系状态
+    painter.drawLine(0,0,50,50);
+}
+
+
+
+
+
+
+
+接着上面一节，前面只是很简单的讲解了一下Qt坐标系统的概念，通过对几个函数的应用，我们应该已经对Qt的坐标系统有了一个模糊的认识。那么现在就来让我们更深入地研究一下Qt窗口的坐标。希望大家把这一节的例子亲手做一下，不要被我所说的东西搞晕了！
+        我们还是在以前的工程中进行操作。
+获得坐标信息：
+为了更清楚地获得坐标信息，我们这里利用鼠标事件，让鼠标点击左键时输出该点的坐标信息。
+1.在工程中的dialog.h文件中添加代码。
+添加头文件： #include <QMouseEvent>
+在public中添加函数声明：void mousePressEvent(QMouseEvent *);
+然后到dialog.cpp文件中：
+添加头文件： #include <QDebug>
+定义函数：
+void Dialog::mousePressEvent(QMouseEvent *event)
+{
+   qDebug() << event->pos();
+}
+这里应用了qDebug()函数，利用该函数可以在程序运行时将程序中的一些信息输出，在Qt Creator中会将信息输出到其下面的Application Output窗口。这个函数很有用，在进行简单的程序调试时，都是利用该函数进行的。我们这里利用它将鼠标指针的坐标值输出出来。
+
+2.然后更改重绘事件函数。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.drawRect(0,0,50,50);
+}
+我们绘制了一个左上顶点为（0，0），宽和高都是50的矩形。
+3.这时运行程序。并在绘制的矩形左上顶点点击一下鼠标左键。效果如下。（点击可看大图）
+
+
+因为鼠标点的不够准确，所以输出的是（1，0），我们可以认为左上角就是原点（0，0）点。你可以再点击一下矩形的右下角，它的坐标应该是（50，50）。这个方法掌握了以后，我们就开始研究这些坐标了。
+
+研究放大后的坐标
+1.我们现在进行放大操作，然后查看其坐标的变化。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.scale(2,2);    //横纵坐标都扩大2倍
+    painter.drawRect(0,0,50,50);
+}
+我们将横纵坐标都扩大2倍，然后运行程序，查看效果：
+
+
+我们点击矩形右下顶点，是（100，100），比以前的（50，50）扩大了2倍。
+
+研究QPixmap或QImage的坐标
+对于QWidget，QPixmap或QImage等都是绘图设备，我们都可以在其上利用QPainter进行绘图。现在我们研究一下QPixmap的坐标（QImage与其效果相同）。
+1.我们更改重绘事件函数如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix(200,200);
+    pix.fill(Qt::red);   //背景填充为红色
+    painter.drawPixmap(0,0,pix);
+}
+这里新建了一个宽、高都是200像素的QPixmap类对象，并将其背景颜色设置为红色，然后从窗口的原点（0，0）点添加该QPixmap类对象。为了表述方便，在下面我们将这个QPixmap类对象pix称为画布。
+我们运行程序，并在画布的左上角和右下角分别点击一下，效果如下：
+
+可以看到其左上角为（0，0）点，右下角为（200，200）点，是没有问题的。
+2.我们再将函数更改如下。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix(200,200);
+    pix.fill(Qt::red);   //背景填充为红色
+    painter.drawPixmap(100,100,pix);
+}
+这时我们从窗口的（100，100）点添加该画布，那么此时我们再点击画布的右上角，其坐标会是多少呢？
+
+可以看到，它是（100，100），没错，这是窗口上的坐标，那么这是不是画布上的坐标呢？
+3.我们接着更改函数。
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix(200,200);
+    pix.fill(Qt::red);   //背景填充为红色
+    QPainter pp(&pix);   //新建QPainter类对象，在pix上进行绘图
+    pp.drawLine(0,0,50,50);     //在pix上的（0，0）点和（50，50）点之间绘制直线
+    painter.drawPixmap(100,100,pix);
+}
+这里我们又新建了一个QPainter类对象pp，其中pp(&pix)表明，pp所进行的绘图都是在画布pix上进行的。
+现在先说明一下：
+QPainter painter(this) ，this就表明了是在窗口上进行绘图，所以利用painter进行的绘图都是在窗口上的，painter进行的坐标变化，是变化的窗口的坐标系；而利用pp进行的绘图都是在画布上进行的，如果它进行坐标变化，就是变化的画布的坐标系。
+
+我们在画布上的（0，0）点和（50，50）点之间绘制了一条直线。这时运行程序，点击这条直线的两端，看看其坐标值。
+
+结果是直线的两端的坐标分别是（100，100），（150，150）。我们从中可以得出这样的结论：
+第一，QWidget和QPixmap各有一套坐标系统，它们互不影响。可以看到，无论画布在窗口的什么位置，它的坐标原点依然在左上角，为（0，0）点，没有变。
+第二，我们所得到的鼠标指针的坐标值是窗口提供的，不是画布的坐标。
+下面我们继续研究：
+4.比较下面两个例子。
+例子一：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix(200,200);
+    qDebug() << pix.size();   //放大前输出pix的大小
+    pix.fill(Qt::red);  
+    QPainter pp(&pix);  
+    pp.scale(2,2);           //pix的坐标扩大2倍
+    pp.drawLine(0,0,50,50);     //在pix上的（0，0）点和（50，50）点之间绘制直线
+    qDebug() << pix.size();    //放大后输出pix的大小
+    painter.drawPixmap(0,0,pix);
+}
+
+例子二：
+void Dialog::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    QPixmap pix(200,200);
+    qDebug() << pix.size();   //放大前输出pix的大小
+    painter.scale(2,2);     //窗口坐标扩大2倍
+    pix.fill(Qt::red);
+    QPainter pp(&pix);
+    pp.drawLine(0,0,50,50);     //在pix上的（0，0）点和（50，50）点之间绘制直线
+    qDebug() << pix.size();    //放大后输出pix的大小
+    painter.drawPixmap(0,0,pix);
+}
+
+
+两个例子中都使直线的长度扩大了两倍，但是第一个例子是扩大的画布的坐标系，第二个例子是扩大的窗口的坐标系，你可以看一下它们的效果。
+你仔细看一下输出，两个例子中画布的大小都没有变。
+如果你看过了我写的那个绘图软件的教程（链接过去），现在你就能明白我在其中讲“问题一”时说的意思了：虽然画布看起来是大了，但是其大小并没有变，其中坐标也没有变。变的是像素的大小或者说像素间的距离。
+但是，有一点你一定要搞明白，这只是在QPixmap与QWidget结合时才出现的，是相对的说法。其实利用scale()函数是会让坐标变化的，我们在开始的例子已经证明了。
+结论：
+现在是不是已经很乱了，一会儿是窗口，一会儿是画布，一会儿坐标变化，一会儿又不变了，到底是怎么样呢？
+其实只需记住一句话：
+所有的绘图设备都有自己的坐标系统，它们互不影响。
+
+
+
+
+简单的涂鸦板：
+1.我们再在程序中添加函数。
+我们在dialog.h里的public中再添加鼠标移动事件和鼠标释放事件的函数声明：
+void mouseMoveEvent(QMouseEvent *);
+void mouseReleaseEvent(QMouseEvent *);
+在private中添加变量声明：
+QPixmap pix;
+QPoint lastPoint;
+QPoint endPoint;
+因为在函数里声明的QPixmap类对象是临时变量，不能存储以前的值，所以为了实现保留上次的绘画结果，我们需要将其设为全局变量。
+后两个QPoint变量存储鼠标指针的两个坐标值，我们需要用这两个坐标值完成绘图。
+2.在dialog.cpp中进行修改。
+在构造函数里进行变量初始化。
+resize(600,500);    //窗口大小设置为600*500
+pix = QPixmap(200,200);
+pix.fill(Qt::white);
+然后进行其他几个函数的定义：
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    QPainter pp(&pix);
+    pp.drawLine(lastPoint,endPoint);   //根据鼠标指针前后两个位置就行绘制直线
+    lastPoint = endPoint;   //让前一个坐标值等于后一个坐标值，这样就能实现画出连续的线
+    QPainter painter(this);
+    painter.drawPixmap(0,0,pix);
+}
+void Dialog::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button()==Qt::LeftButton) //鼠标左键按下
+        lastPoint = event->pos();
+}
+void Dialog::mouseMoveEvent(QMouseEvent *event)
+{
+    if(event->buttons()&Qt::LeftButton) //鼠标左键按下的同时移动鼠标
+    {
+        endPoint = event->pos();
+        update();
+    }
+}
+void Dialog::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton) //鼠标左键释放
+    {
+        endPoint = event->pos();
+        update();
+    }
+}
+这里的update()函数，是进行界面重绘，执行该函数时就会执行那个重绘事件函数。
+3.这时运行程序，效果如下。（点击图片可将其放大）
+
+
+
+
+这样简单的涂鸦板程序就完成了。下面我们进行放大后的涂鸦。
+放大后再进行涂鸦：
+1.添加放大按钮。
+在dialog.h中添加头文件声明： #include <QPushButton>
+在private中添加变量声明：
+int scale;
+QPushButton *pushBtn;
+然后再在下面写上按钮的槽函数声明：
+private slots:
+    void zoomIn();
+2.在dialog.cpp中进行更改。
+在构造函数里添加如下代码：
+scale =1;   //设置初始放大倍数为1，即不放大
+pushBtn = new QPushButton(this); //新建按钮对象
+pushBtn->setText(tr("zoomIn"));   //设置按钮显示文本
+pushBtn->move(500,450);    //设置按钮放置位置
+connect(pushBtn,SIGNAL(clicked()),this,SLOT(zoomIn())); //对按钮的单击事件和其槽函数进行关联
+这里我们利用代码添加了一个按钮对象，用它来实现放大操作。
+再在构造函数以外进行zoomIn()函数的定义：
+void Dialog::zoomIn() //按钮单击事件的槽函数
+{
+    scale *=2;
+    update();
+}
+3.通过上一节的学习，我们应该已经知道想让画布的内容放大有两个办法，一个是直接放大画布的坐标，一个是放大窗口的坐标。
+我们主要讲解放大窗口坐标。
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    QPainter pp(&pix);
+    pp.drawLine(lastPoint,endPoint);   //根据鼠标指针前后两个位置就行绘制直线
+    lastPoint = endPoint;   //让前一个坐标值等于后一个坐标值，这样就能实现画出连续的线
+    QPainter painter(this);
+    painter.scale(scale,scale); //进行放大操作
+    painter.drawPixmap(0,0,pix);
+}
+这时运行程序。
+先随意画一个图形，如下图。
+
+再按下“zoomIn”按钮，进行放大两倍。可以看到图片放大了，效果如下。
+
+这时我们再进行绘图，绘制出的线条已经不能和鼠标指针的轨迹重合了。效果如下图。
+
+
+有了前面一节的知识，我们就不难理解出现这个问题的原因了。窗口的坐标扩大了，但是画布的坐标并没有扩大，而我们画图用的坐标值是鼠标指针的，鼠标指针又是获取的窗口的坐标值。现在窗口和画布的同一点的坐标并不相等，所以就出现了这样的问题。
+其实解决办法很简单，窗口放大了多少倍，就将获得的鼠标指针的坐标值缩小多少倍就行了。
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    QPainter pp(&pix);
+    pp.drawLine(lastPoint/scale,endPoint/scale);
+    lastPoint = endPoint;
+    QPainter painter(this);
+    painter.scale(scale,scale); //进行放大操作
+    painter.drawPixmap(0,0,pix);
+}
+运行程序，效果如下：
+
+
+此时已经能进行正常绘图了。
+
+这种用改变窗口坐标大小来改变画布面积的方法，实际上是有损图片质量的。就像将一张位图放大一样，越放大越不清晰。原因就是，它的像素的个数没有变，如果将可视面积放大，那么单位面积里的像素个数就变少了，所以画质就差了。
+下面我们简单说说另一种方法。
+放大画布坐标。
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    QPainter pp(&pix);
+    pp.scale(scale,scale);
+    pp.drawLine(lastPoint/scale,endPoint/scale);
+    lastPoint = endPoint;
+    QPainter painter(this);
+    painter.drawPixmap(0,0,pix);
+}
+效果如下：
+
+
+此时，画布中的内容并没有放大，而且画布也没有变大，不是我们想要的，所以我们再更改一下函数。
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    if(scale!=1) //如果进行放大操作
+    {
+        QPixmap copyPix(pix.size()*scale); //临时画布，大小变化了scale倍
+        QPainter pter(&copyPix);
+        pter.scale(scale,scale);
+        pter.drawPixmap(0,0,pix);   //将以前画布上的内容复制到现在的画布上
+        pix = copyPix;     //将放大后的内容再复制回原来的画布上，这样只传递内容，不传递坐标系
+        scale =1; //让scale重新置1
+    }
+    QPainter pp(&pix);
+    pp.scale(scale,scale);
+    pp.drawLine(lastPoint/scale,endPoint/scale);
+    lastPoint = endPoint;
+    QPainter painter(this);
+    painter.drawPixmap(0,0,pix);
+}
+此时运行效果如下：
+
+这样就好了。可以看到，这样放大后再进行绘制，出来的效果是不同的。 
+
+
+
+
+上面一节我们实现了涂鸦板的功能，但是如果我们想在涂鸦板上绘制矩形，并且可以动态地绘制这个矩形，也就是说我们可以用鼠标画出随意大小的矩形，那该怎么办呢？
+我们先进行下面的三步，最后引出所谓的双缓冲绘图的概念。
+
+第一步：
+我们更改上一节的那个程序的重绘函数。
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    QPainter painter(this);
+    int x,y,w,h;
+    x = lastPoint.x();
+    y = lastPoint.y();
+    w = endPoint.x() - x;
+    h = endPoint.y() - y;
+    painter.drawRect(x,y,w,h);
+}
+然后运行，效果如下。
+
+这时我们已经可以拖出一个矩形了，但是这样直接在窗口上绘图，以前画的矩形是不能保存住的。所以我们下面加入画布，在画布上进行绘图。
+
+
+第二步：
+我们先在构造函数里将画布设置大点：pix = QPixmap(400,400);
+然后更改函数，如下：
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    int x,y,w,h;
+    x = lastPoint.x();
+    y = lastPoint.y();
+    w = endPoint.x() - x;
+    h = endPoint.y() - y;
+    QPainter pp(&pix);
+    pp.drawRect(x,y,w,h);
+    QPainter painter(this);
+    painter.drawPixmap(0,0,pix);
+}
+这时运行程序，效果如下：
+
+现在虽然能画出矩形，但是却出现了无数个矩形，这不是我们想要的结果，我们希望能像第一步那样绘制矩形，所以我们再加入一个临时画布。
+
+
+
+第三步：
+首先，我们在dialog.h中的private里添加变量声明：
+QPixmap tempPix; //临时画布
+bool isDrawing;   //标志是否正在绘图
+然后在dialog.cpp中的构造函数里进行变量初始化：
+isDrawing = false;
+最后更改函数如下：
+void Dialog::paintEvent(QPaintEvent *)
+{  
+    int x,y,w,h;
+    x = lastPoint.x();
+    y = lastPoint.y();
+    w = endPoint.x() - x;
+    h = endPoint.y() - y;
+    QPainter painter(this);
+    if(isDrawing)     //如果正在绘图
+    {
+        tempPix = pix;    //将以前pix中的内容复制到tempPix中，这样实现了交互绘图
+        QPainter pp(&tempPix);
+        pp.drawRect(x,y,w,h);
+        painter.drawPixmap(0,0,tempPix);
+    }
+    else
+    {
+        QPainter pp(&pix);
+        pp.drawRect(x,y,w,h);
+        painter.drawPixmap(0,0,pix);
+    }
+}
+void Dialog::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button()==Qt::LeftButton) //鼠标左键按下
+    {
+        lastPoint = event->pos();
+        isDrawing = true;   //正在绘图
+    }
+}
+void Dialog::mouseMoveEvent(QMouseEvent *event)
+{
+    if(event->buttons()&Qt::LeftButton) //鼠标左键按下的同时移动鼠标
+    {
+        endPoint = event->pos();
+        update();
+    }
+}
+void Dialog::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::LeftButton) //鼠标左键释放
+    {
+        endPoint = event->pos();
+        isDrawing = false;    //结束绘图
+        update();
+    }
+}
+我们使用两个画布，就解决了绘制矩形等图形的问题。
+其中tempPix = pix;一句代码很重要，就是它，才实现了消除那些多余的矩形。
+
+双缓冲绘图简介：
+根据我的理解，如果将第一步中不用画布，直接在窗口上进行绘图叫做无缓冲绘图，那么第二步中用了一个画布，将所有内容都先画到画布上，在整体绘制到窗口上，就该叫做单缓冲绘图，那个画布就是一个缓冲区。这样，第三步，用了两个画布，一个进行临时的绘图，一个进行最终的绘图，这样就叫做双缓冲绘图。
+我们已经看到，利用双缓冲绘图可以实现动态交互绘制。其实，Qt中所有部件进行绘制时，都是使用的双缓冲绘图。就算是第一步中我们没有用画布，Qt在进行自身绘制时也是使用的双缓冲绘图，所以我们刚才那么说，只是为了更好地理解双缓冲的概念。
