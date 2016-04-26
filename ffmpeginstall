@@ -1,0 +1,102 @@
+（1）到http://www.ffmpeg.org/download.html下载最新版ffmpeg
+
+也可以用这个命令：
+
+git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg
+
+yasm是汇编编译器，因为ffmpeg中为了提高效率用到了汇编指令，所以需要先安装。
+
+到http://yasm.tortall.net/Download.html下载Source .tar.gz(即yasm-1.2.0.tar.gz)
+  tar zxvf yasm-1.2.0.tar.gz
+
+  cd yasm-1.2.0
+
+  ./configure
+
+  make
+
+  sudo make install
+
+ 
+
+（2）需要用到x264库
+
+sudo apt-get install libx264-dev
+
+ 
+
+（3）安装依赖库
+
+1. sudo apt-get install libfaac-dev
+
+2. sudo apt-get install libmp3lame-dev
+
+3. sudo apt-get install libtheora-dev
+
+4. sudo apt-get install libvorbis-dev
+
+5. sudo apt-get install libxvidcore-dev
+
+6. sudo apt-get install libxext-dev
+
+7. sudo apt-get install libxfixes-dev
+
+ 
+
+(4)配置ffmpeg，主要是打开x11grab
+
+./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc  --enable-pthreads --enable-libfaac  --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab --enable-libvorbis
+
+ 
+
+（5）编译
+
+make
+
+ 
+
+（6）安装
+
+sudo make install
+
+ 这样就OK！
+
+——————————————————————————————————————
+
+ffmpeg使用
+
+例如，录制屏幕：
+
+ ffmpeg -f x11grab -s 640x480 -r 25 -i :0.0 ./out.mpg
+
+ 
+
+问题：ffmpeg编译后没有ffplay？
+
+主要原因是没有装SDL库。
+
+安装SDL库（不安装将没有ffplay）（如果自己去下载SDL源码然后make install安装的库，编译ffmpeg可以产生ffplay，但是产生的ffplay播放视频没有声音,而且不能播音频）。以及其他的一些库。
+
+sudo apt-get install libsdl1.2-dev(比较大，10M左右)
+附加包：
+sudo apt-get install libsdl-image1.2-dev
+sudo apt-get install libsdl-mixer1.2-dev
+sudo apt-get install libsdl-ttf2.0-dev
+sudo apt-get install libsdl-gfx1.2-dev
+安装完成之后，在目录/usr/include中，就会有个SDL文件夹，里面包含了所需要的头文件。
+
+编译
+
+$./configure --enable-gpl --enable-version3 --enable-nonfree --enable-postproc  --enable-pthreads --enable-libfaac  --enable-libmp3lame --enable-libtheora --enable-libx264 --enable-libxvid --enable-x11grab --enable-libvorbis
+
+$make
+
+$sudo make install
+
+安装成功！OK！
+
+最后测试
+
+$./ffplay hello.mpg
+
+
